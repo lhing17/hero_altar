@@ -1,0 +1,39 @@
+library test initializer init
+    globals
+        trigger OnTimerCallBack
+        boolexpr bA
+        boolexpr bB
+        triggercondition cA
+        triggercondition cB
+        timer t
+    endglobals
+
+    function conditionA takes nothing returns boolean
+        call BJDebugMsg("A")
+        return true
+    endfunction
+
+    function conditionB takes nothing returns boolean
+        call BJDebugMsg("B")
+        return true
+    endfunction
+    
+    function tAction takes nothing returns nothing
+        call TriggerRemoveCondition(OnTimerCallBack, cB)
+        set cA = TriggerAddCondition(OnTimerCallBack, bA)
+        call TriggerEvaluate(OnTimerCallBack)
+        call TriggerRemoveCondition(OnTimerCallBack, cA)
+        set cB = TriggerAddCondition(OnTimerCallBack, bB)
+        call TriggerEvaluate(OnTimerCallBack)
+    endfunction
+
+    function init takes nothing returns nothing
+        set OnTimerCallBack = CreateTrigger()
+        set bA = Condition(function conditionA)
+        set bB = Condition(function conditionB)
+        set cB = TriggerAddCondition(OnTimerCallBack, bB)
+        set t = CreateTimer()
+        call TimerStart(t, 0.1, true, function tAction)
+    endfunction
+
+endlibrary
