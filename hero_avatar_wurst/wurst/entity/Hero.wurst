@@ -1,0 +1,86 @@
+package Hero
+
+public class Hero
+    unit u
+    int player_index
+    int exp //武学经验
+    int potential //潜能
+    int dodge //闪避 0-100的整数
+    int power //出手
+    int skill_level //武艺
+    construct(unit u, int player_index)
+        this.u = u
+        this.player_index = player_index
+        this.exp = 0
+        this.potential = 0
+        this.dodge = 0
+    //悟性
+    function getInt() returns int
+        return u.getInt(true)
+
+    //敏捷
+    function getAgi() returns int
+        return u.getAgi(true)
+
+    //根骨
+    function getStr() returns int
+        return u.getStr(true)
+    
+    function getExp() returns int
+        return this.exp
+    
+    function setExp(int exp)
+        this.exp = exp
+
+    function getPotential() returns int
+        return this.potential
+
+    function setPotential(int potential)
+        this.potential = potential
+    //金钱
+    function getMoney() returns int
+        return Player(player_index).getGold()
+    
+    function addMoney(int num)
+        Player(player_index).addGold(num)
+    //珍稀币
+    function getRareMoney() returns int
+        return Player(player_index).getLumber()
+    
+    function addRareMoney(int num)
+        Player(player_index).addLumber(num)
+    
+    function getDodge() returns int
+        return this.dodge
+    
+    function setDodge(int dodge)
+        this.dodge = dodge
+    
+    function getLife() returns real
+        return u.getLife()
+    
+    function addLife(real value)
+        u.addState(UNIT_STATE_LIFE, value)
+    //内力
+    function getKi() returns real
+        return u.getMaxMana()
+    
+    function getPower() returns int
+        return this.power
+
+    function setPower(int power)
+        this.power = power
+    
+    function addPower(int value)
+        this.power += value
+    
+    function getSkillLevel() returns int
+        return this.skill_level
+    
+    function setSkillLevel(int skill_level)
+        this.skill_level = skill_level
+    
+      
+    
+     
+    
