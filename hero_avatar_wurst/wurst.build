@@ -1,0 +1,8 @@
+---
+projectName: "hero_avatar_wurst"
+dependencies:
+- "https://github.com/wurstscript/wurstStdlib2"
+buildMapData:
+  name: "DefaultName"
+  fileName: "DefaultFileName"
+  author: "DefaultAuthor"
