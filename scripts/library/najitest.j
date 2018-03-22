@@ -240,7 +240,7 @@ endfunction
 //=====================================@共用函数结束=====================================
 //=====================================#功能函数开始=====================================
 function TestA82_naji takes nothing returns nothing
-    call ExecuteFunc(SubString(GetEventPlayerChatString(),3,StringLength(GetEventPlayerChatString())))
+    call DoNothing()
 endfunction
 function TestA81_naji takes nothing returns nothing
     local integer i_naji
