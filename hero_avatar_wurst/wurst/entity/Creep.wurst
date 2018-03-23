@@ -1,0 +1,36 @@
+package Creep
+
+@configurable player creep_player = Player(12)
+
+/**野怪实体类**/
+public class Creep
+    unit u
+    int exp //杀怪
+    int money //杀怪获得金钱
+    int reviveTime //复活（重新刷新）时间
+    construct(int unitId, vec2 pos, int exp, int money, int reviveTime)
+        this.u = createUnit(creep_player, unitId, pos, bj_UNIT_FACING.asAngleDegrees())
+        this.exp = exp
+        this.money = money
+        this.reviveTime = reviveTime
+
+    function getLevel() returns int
+        return u.getLevel()
+    
+    function getExp() returns int
+        return this.exp
+    
+    function setExp(int exp)
+        this.exp = exp
+    
+    function getReviveTime() returns int 
+        return this.reviveTime
+    
+    function setReviveTime(int reviveTime)
+        this.reviveTime = reviveTime
+    
+    function getMoney() returns int
+        return this.money
+    
+    ondestroy
+        KillUnit(u)

@@ -1,0 +1,3 @@
+package Creep_config
+
+@config player creep_player = Player(15)

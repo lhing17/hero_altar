@@ -1,0 +1,10 @@
+package Boss
+
+import Creep
+
+/**野怪的BOSS，拥有技能**/
+public class Boss extends Creep
+    int array[4] abilities
+    construct(int unitId, vec2 pos, int exp, int money, int reviveTime)
+        super(unitId, pos, exp, money, reviveTime)
+    
