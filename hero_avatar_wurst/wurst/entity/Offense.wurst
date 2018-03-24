@@ -1,0 +1,23 @@
+package Offense
+
+import Enemy
+import Orders
+
+/** 进攻怪的电脑玩家 **/
+@configurable player offense_player = Player(6)
+
+let offense_lookup = [
+    'ewsp',
+    'earc',
+    'esen'
+]
+
+public function int.toOffenseId() returns int
+    return offense_lookup[this]
+
+public class Offense extends Enemy
+    construct(int unitId, vec2 pos)
+        super(offense_player, unitId, pos)
+    
+    function moveToAndAttack(vec2 target)
+        u.issuePointOrderById(Orders.attack, target)

@@ -1,0 +1,27 @@
+package OffenseSpawner
+
+import ClosureTimers
+import Offense
+
+/* 刷怪点 */
+// FIXME
+let spawn_loc=[
+    vec2(-13600, 2900),
+    vec2(200, 200),
+    vec2(300, 300)
+]
+// FIXME
+/* 基地所在地点 */
+let base_loc = vec2(-14100, 2100)
+
+function spawn(int wave)
+    doPeriodicallyCounted(2, 10) cb ->
+        for i = 0 to 2
+            var offense = new Offense(wave.toOffenseId(), spawn_loc[i])
+            offense.moveToAndAttack(base_loc)
+
+init
+    int wave = 0
+    doAfter(5) ->
+        spawn(wave)
+        wave++
