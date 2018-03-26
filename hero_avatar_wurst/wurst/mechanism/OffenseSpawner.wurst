@@ -2,6 +2,14 @@ package OffenseSpawner
 
 import ClosureTimers
 import Offense
+import TimerUtils
+
+/** 刷怪间隔 **/
+@configurable let SPAWN_INTERVAL = 2.0
+/** 每波怪数（一条路） **/
+@configurable let COUNT_PER_WAVE = 10
+/** 两波怪时间间隔 **/
+@configurable let WAVE_INTERAVL = 10.0
 
 /* 刷怪点 */
 // FIXME
@@ -13,15 +21,33 @@ let spawn_loc=[
 // FIXME
 /* 基地所在地点 */
 let base_loc = vec2(-14100, 2100)
+let spawn_timer = getTimer()
+timerdialog spawn_timer_dialog = CreateTimerDialog(spawn_timer)
+int wave = 0
 
-function spawn(int wave)
-    doPeriodicallyCounted(2, 10) cb ->
+/** 刷怪倒计时 **/
+function spawnAfter(real time)
+    spawn_timer.start(time, null)
+    TimerDialogSetTitle(spawn_timer_dialog, "第"+(wave+1).toString()+"波倒计时")
+    TimerDialogDisplay(spawn_timer_dialog, true)
+
+/** 刷怪 **/
+function spawn()
+    TimerDialogDisplay(spawn_timer_dialog, false)
+    doPeriodicallyCounted(SPAWN_INTERVAL, COUNT_PER_WAVE) cb ->
         for i = 0 to 2
             var offense = new Offense(wave.toOffenseId(), spawn_loc[i])
             offense.moveToAndAttack(base_loc)
+    doAfter(SPAWN_INTERVAL * COUNT_PER_WAVE) ->
+        wave++
+        spawnAfter(WAVE_INTERAVL)
+            
 
 init
-    int wave = 0
+    CreateTrigger()
+        ..registerTimerExpireEvent(spawn_timer)
+        ..addAction(function spawn)
     doAfter(5) ->
-        spawn(wave)
-        wave++
+        spawnAfter(WAVE_INTERAVL)
+        
+        
