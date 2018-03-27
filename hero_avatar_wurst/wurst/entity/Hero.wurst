@@ -1,4 +1,10 @@
 package Hero
+import HashMap
+
+HashMap<int, Hero> heroMap = new HashMap<int, Hero>
+
+public function unit.getHero() returns Hero
+    return heroMap.get(this.getOwner().getId())
 
 public class Hero
     unit u

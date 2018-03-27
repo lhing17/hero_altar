@@ -1,0 +1,8 @@
+package OffenseSpawner_config
+
+/** 刷怪间隔 **/
+@config let SPAWN_INTERVAL = 2.0
+/** 每波怪数（一条路） **/
+@config let COUNT_PER_WAVE = 10
+/** 两波怪时间间隔 **/
+@config let WAVE_INTERAVL = 10.0
