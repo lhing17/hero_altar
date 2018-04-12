@@ -1,0 +1,17 @@
+package GlobalInitialization
+
+/* 选择英雄的单位组 */
+public group heroSelectionGroup = CreateGroup()
+/* 基地所在地点 */
+public vec2 BASE_LOC = vec2(-1000, -3800)
+
+init
+    heroSelectionGroup.addUnit(gg_unit_E004_0023) //花间派
+    heroSelectionGroup.addUnit(gg_unit_E005_0024) //太极门
+    heroSelectionGroup.addUnit(gg_unit_E006_0025) //八卦门
+    heroSelectionGroup.addUnit(gg_unit_E008_0026) //雪山派
+    heroSelectionGroup.addUnit(gg_unit_E009_0027) //兽王派
+    heroSelectionGroup.addUnit(gg_unit_E007_0028) //尹贺派
+    heroSelectionGroup.addUnit(gg_unit_E00A_0029) //红莲教
+    heroSelectionGroup.addUnit(gg_unit_E00C_0030) //逍遥派
+    heroSelectionGroup.addUnit(gg_unit_E00B_0031) //茅山派

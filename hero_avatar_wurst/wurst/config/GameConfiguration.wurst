@@ -1,0 +1,3 @@
+package GameConfiguration
+
+public let MAX_PLAYER_NUMBER = 5
