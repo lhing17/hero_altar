@@ -46,6 +46,7 @@ function selectHeroAction()
         u.setHero(new Hero(u, i))
     else
         showHint(p, u)
+        selectedHero[i] = u
 
 
 init
