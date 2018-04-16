@@ -1,5 +1,9 @@
 package Hero
+
 import HashMap
+import Event
+import ClosureTimers
+import GlobalInitialization
 
 HashMap<int, Hero> heroMap = new HashMap<int, Hero>
 
@@ -26,18 +30,20 @@ public class Hero
         this.exp = 0
         this.potential = 0
         this.dodge = 0
-    //悟性
-    function getInt() returns int
-        return u.getInt(true)
+        EventListener.add(u, EVENT_UNIT_DEATH, () -> onDeath())
 
-    //敏捷
-    function getAgi() returns int
-        return u.getAgi(true)
+    function onDeath()
+        var t = CreateTimer()
+        CreateTimerDialogBJ(t,"复活倒计时:")
+        TimerDialogDisplayForPlayerBJ(true, bj_lastCreatedTimerDialog, Player(player_index))
+        var tg = bj_lastCreatedTimerDialog
+        t.start(15, null)
+        doAfter(15) ->
+            u.revive(HERO_BORN_LOC, true)
+            Player(player_index).panCamToTimed(u, 0)
+            DestroyTimerDialog(tg)
+            t.destr()
 
-    //根骨
-    function getStr() returns int
-        return u.getStr(true)
-    
     function getExp() returns int
         return this.exp
     
@@ -60,37 +66,20 @@ public class Hero
         return Player(player_index).getLumber()
     
     function addRareMoney(int num)
-        Player(player_index).addLumber(num)
-    
-    function getDodge() returns int
-        return this.dodge
-    
-    function setDodge(int dodge)
-        this.dodge = dodge
-    
-    function getLife() returns real
-        return u.getLife()
-    
+        Player(player_index).addLumber(num)    
+        
     function addLife(real value)
         u.addState(UNIT_STATE_LIFE, value)
     //内力
     function getKi() returns real
         return u.getMaxMana()
     
-    function getPower() returns int
-        return this.power
-
-    function setPower(int power)
-        this.power = power
+    
     
     function addPower(int value)
         this.power += value
     
-    function getSkillLevel() returns int
-        return this.skill_level
-    
-    function setSkillLevel(int skill_level)
-        this.skill_level = skill_level
+   
     
       
     

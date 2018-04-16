@@ -1,9 +1,19 @@
 package GlobalInitialization
 
-/* 选择英雄的单位组 */
+/** 选择英雄的单位组 **/
 public group heroSelectionGroup = CreateGroup()
-/* 基地所在地点 */
+/** 基地所在地点 **/
 public vec2 BASE_LOC = vec2(-1000, -3800)
+/** 英雄出生点位 **/
+public vec2 HERO_BORN_LOC = vec2(-1000, -3800)
+/** 基地 **/
+public unit BASE = gg_unit_E004_0023 // FIXME 替换成实际单位
+/** 最终进攻怪 **/
+public unit FINAL_BOSS = gg_unit_E004_0023 // FIXME 替换成实际单位
+/** 最终野怪——我是谁 **/
+public unit WHO_AM_I = gg_unit_E004_0023 // FIXME 替换成实际单位
+/** 游戏评分 **/
+public int GAME_SCORE = 0
 
 init
     heroSelectionGroup.addUnit(gg_unit_E004_0023) //花间派

@@ -1,3 +1,11 @@
 package GameConfiguration
 
 public let MAX_PLAYER_NUMBER = 5
+
+public let GAME_VERSION = "1.00"
+
+public let GAME_FORUM = "jzjhbbs.uuu9.com"
+
+public let QQ_GROUP_1 = "159030768"
+
+public let QQ_GROUP_2 = "369925013"
