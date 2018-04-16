@@ -1,0 +1,57 @@
+package SeqWorker
+import public TimerUtils
+import public ClosureTimers
+
+/**
+Sequentially executes the given closure, as long as the 
+	abstract function onExecute(PayloadCallback cb) returns boolean
+-closure returns true. 
+On returning false the callback ends and the closure is destroyed.
+*/
+public function doSeq(SeqCallback cb)
+	cb.ref = getTimer()..setData(cb castTo int)
+	cb.ref..start(0.001, () -> onSeq())
+
+function onSeq() 
+	let time = GetExpiredTimer()
+	let rcb = (time.getData() castTo SeqCallback)
+	if not rcb.done and rcb.ref != null
+		if rcb.doStep()
+			time.start(0.001, () -> onSeq())
+		else
+			rcb.terminate()
+
+public abstract class PayloadCallback
+	int customData = 0
+	
+	function doStep()
+		onExecute(this)
+
+	abstract function onExecute(PayloadCallback cb)
+
+public abstract class SeqCallback
+	int customData = 0
+	boolean done = false
+	timer ref = null
+
+	construct()
+
+	function terminate()
+		if not done or ref != null
+			done = true
+			destroy this
+
+	function doStep() returns boolean
+		if not done
+			return onExecute(this)
+		return false
+
+	abstract function onExecute(SeqCallback cb) returns boolean
+
+	ondestroy
+		if ref != null
+			ref.release()
+			ref = null
+
+	
+

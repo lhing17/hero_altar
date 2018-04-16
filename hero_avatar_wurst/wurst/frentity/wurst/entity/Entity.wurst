@@ -1,0 +1,272 @@
+package Entity
+import public TimerUtils
+import public Event
+import public DupletListModule
+import public TerrainUtils
+import public PhysicsConstants
+import public LinkedList
+import public DmgMod
+import public MapBounds
+import initlater DebugInfo
+import initlater Buff
+import initlater Json
+import public FText
+import public ErrorHandling
+import public UnitIndexer
+import public Frentity
+
+public constant KEY_X = "x"
+public constant KEY_Y = "y"
+public constant KEY_Z = "z"
+public constant KEY_TYPE = "t"
+
+public vec3 serializeOrigin = ZERO3
+
+UnitEntity array entities
+
+public function unit.getEntity() returns UnitEntity
+	return entities[this.getIndex()]
+	
+public function unit.setEntity(UnitEntity e)
+	entities[this.getIndex()] = e
+
+// Item entities still use userdata as they aren't indexed
+public function item.getEntity() returns Entity
+	return this.getUserData() castTo Entity
+	
+public function item.setEntity(Entity e)
+	this.setUserData(e castTo int)
+
+public interface Serializable
+	function serialize() returns Json
+	function deserialize(Json json)
+
+	function debugPrint() returns string
+		let s = new BigString()
+		let json = serialize()
+		json.addToBigString(s)
+		destroy json
+		let st =  s.getString(0, BIG_SUBSTRING_LEN)
+		destroy s
+		return st
+
+/** Base Entity Class  */
+public abstract class Entity implements Serializable
+	use DupletListModule
+	/** 3d vector position */
+	protected vec3 pos
+	/** 3d vector velocity */
+	protected vec3 vel
+
+	/** gravity */
+	real gravity = defaultGravity
+	/** radius */
+	real radius
+	/** speed factor (multiplies to added velocity) */
+	real speedFactor = 1.
+	
+	/** owning player */
+	player owner
+	
+	/** sleeping or active? */
+	boolean flying 		= false
+	boolean done 		= false
+	boolean sleeps 		= true
+	int idleSeconds		= 0
+
+	construct()
+		setupEntity(ZERO3, ZERO3, DUMMY_PLAYER, 0.)
+
+	construct(player owner)
+		setupEntity(ZERO3, ZERO3, owner, 0.)
+
+	construct(player owner, vec2 pos)
+		setupEntity(pos.toVec3(), ZERO3, owner, 0.)
+
+	construct(player owner, vec3 pos)
+		setupEntity(pos, ZERO3, owner, 0.)
+
+	construct(player owner, vec3 pos, real radius)
+		setupEntity(pos, ZERO3, owner, radius)
+	
+	construct(player owner, vec3 pos, real radius, vec3 vel)
+		setupEntity(pos, vel, owner, radius)
+
+	function setupEntity(vec3 pos, vec3 vel, player owner, real radius)
+		this.pos = pos
+		this.vel = vel
+		this.owner = owner
+		this.radius = radius
+		if pos.z > (DYNAMIC_Z ? getTerrainZ(pos.toVec2()) : 0)
+			setFlying(true)
+		allocationsPerSecond++
+		
+	function getPos() returns vec3
+		return pos
+		
+	function setXY(vec3 pos)
+		this.pos = pos
+
+	function setPos(vec3 pos)
+		this.pos = pos
+		if pos.z > getTerrainZ(pos.toVec2()) and gravity != 0
+			activate()
+		
+	function addPos(vec3 pos)
+		this.pos += pos
+		if pos.z > getTerrainZ(pos.toVec2()) and gravity != 0
+			activate()
+		
+	function getVel() returns vec3
+		return vel
+		
+	function setVel(vec3 vel)
+		this.vel = vel
+		activate()
+	
+	function addVel(vec3 vel)
+		this.vel += vel
+		activate()
+
+	function scaleVel(real factor)
+		this.vel *= factor
+		
+	function setTarget(vec3 tpos, real speed)
+		var t = pos.distanceTo2d(tpos) / speed
+		let tangle = pos.angleTo2d(tpos)
+		var e = 0.
+		if DYNAMIC_Z
+			e = getTerrainZ(tpos.x,tpos.y)
+		
+		if t < 1.
+			t = 1./speed
+		
+		let startZVelocity = ((-gravity * t) / 2 - pos.z/t + e/t)
+		setVel(tangle.toVec(speed).withZ(startZVelocity))
+		
+	function setFlying(boolean flag)
+		flying = flag
+
+	/** This function is called every ANIMATION_PERIOD tick if the Entity is active */
+	function update()
+		if sleeps and not flying and vel.lengthSquared() < 1.5
+			deactivate()
+		else
+			pos += (vel*speedFactor)
+			setXY(pos)
+			
+			let tz = (DYNAMIC_Z ? getTerrainZ(pos.toVec2()) : 0)
+			if pos.z > tz
+				vel.z += gravity
+				setFlying(true)
+			else
+				vel.z = 0
+				pos.z = tz
+				setFlying(false)
+
+			
+			
+
+	function slowUpdate()
+		idleSeconds++
+
+	function terminate()
+		if not done
+			done = true
+			destroy this
+
+	override function serialize() returns Json
+		let json = new Json()
+		getPos()
+		json.addProperty(new Property(KEY_X, (pos.x-serializeOrigin.x).toInt().toString()))
+		json.addProperty(new Property(KEY_Y, (pos.y-serializeOrigin.y).toInt().toString()))
+		json.addProperty(new Property(KEY_Z, (pos.z-serializeOrigin.z).toInt().toString()))
+		return json
+
+	override function deserialize(Json json)
+		// pos = vec3(json.getReal(KEY_X)+serializeOrigin.x, json.getReal(KEY_Y)+serializeOrigin.y, json.getReal(KEY_Z)+serializeOrigin.z)
+
+
+function unit.getDynamicPos() returns vec3
+	if DYNAMIC_Z
+		return this.getPos3Real()
+	return this.getPos().withZ(0)
+	
+abstract public class UnitEntity extends Entity
+	unit actor = null
+	
+	construct(unit actor)
+		super(actor.getOwner(), actor.getDynamicPos(), 0)
+		setupUnitEntity(actor)
+	
+	construct(unit actor, vec3 pos)
+		super(actor.getOwner(), pos, 0)
+		setupUnitEntity(actor)
+		
+	construct(unit actor, vec3 pos, real radius)
+		super(actor.getOwner(), pos, radius)
+		setupUnitEntity(actor)
+
+	function setupUnitEntity(unit actor)
+		this.actor = actor
+		if not actor.isAlive()
+			terminate()
+			error("Trying to assign entity to unit that is not alive")
+		if actor.getEntity() != null
+			terminate()
+			error("Trying to assign entity to unit that already has an entity")
+			
+		actor..setEntity(this)..addAbility(HEIGHT_ENABLER)..removeAbility(HEIGHT_ENABLER)
+		if DYNAMIC_Z
+			actor.setXYZReal(pos)
+		else
+			actor.setXYZ(pos)
+				
+	override function update()
+		pos = actor.getPos3with(pos.z)
+		super.update()
+		
+	function setNewActor(unit u)
+		if u == null or not u.isAlive() or u.getEntity() != null
+			error("invalid actor replacement") 
+		actor.setEntity(null)
+		actor.remove()
+		actor = u
+		actor.setEntity(this)
+
+	override function setXY(vec3 tpos)
+		if tpos.inPlayable()
+			pos = tpos
+			if DYNAMIC_Z
+				actor.setXYZReal(pos)
+			else
+				actor.setXYZ(pos)
+		else 
+			terminate()
+		
+	override function setPos(vec3 tpos)
+		super.setPos(tpos)
+		if DYNAMIC_Z
+			actor.setPosReal(pos)
+		else
+			actor.setPos(pos.toVec2())
+			
+	override function getPos() returns vec3
+		if not active
+			if DYNAMIC_Z
+				pos = actor.getPos3Real()
+			else
+				pos = actor.getPos3Fly()
+		return pos
+		
+	ondestroy
+		this.clearBuffs()
+		
+		if actor.getEntity() == this
+			actor.setEntity(null)
+			if actor.isAlive()
+				if KILL_ACTORS
+					actor.kill()
+				else
+					actor.remove()
+		actor = null
