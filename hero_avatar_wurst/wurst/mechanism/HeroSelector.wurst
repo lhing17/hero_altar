@@ -43,7 +43,7 @@ function selectHeroAction()
         var ut = createUnit(p, u.getTypeId(), HERO_BORN_LOC, bj_UNIT_FACING.asAngleDegrees())
         p.panCamToTimed(ut, 0)
         u.remove()
-        u.setHero(new Hero(u, i))
+        ut.setHero(new Hero(ut, i))
     else
         showHint(p, u)
         selectedHero[i] = u
