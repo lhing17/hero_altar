@@ -1,5 +1,0 @@
-package PhysicsConstants
-
-@configurable public var airDensity = 1.2754
-@configurable public var defaultGravity = -0.8
-
