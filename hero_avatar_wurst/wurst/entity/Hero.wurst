@@ -31,7 +31,10 @@ public class Hero
         this.potential = 0
         this.dodge = 0
         EventListener.add(u, EVENT_UNIT_DEATH, () -> onDeath())
+        EventListener.add(u, EVENT_UNIT_HERO_LEVEL, () -> onLevelUp())
 
+    function onLevelUp()
+        // TODO 英雄升级执行的动作
     function onDeath()
         var t = CreateTimer()
         CreateTimerDialogBJ(t,"复活倒计时:")

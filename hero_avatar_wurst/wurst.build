@@ -2,6 +2,7 @@
 projectName: "hero_avatar_wurst"
 dependencies:
 - "https://github.com/wurstscript/wurstStdlib2"
+- "https://github.com/Frotty/Frentity"
 buildMapData:
   name: "DefaultName"
   fileName: "DefaultFileName"
